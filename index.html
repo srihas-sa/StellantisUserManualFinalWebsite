@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Answering Website</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+ 
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+ 
+        .subcontainer {
+            display: flex;
+            flex-direction: row;
+            background-color: #ADD8E6;
+            border-radius: 10px;
+            padding-top: 10px;
+        }
+ 
+        .ChatbotIcon {
+            width: 50px;
+            height: 50px;
+            border-radius: 20px;
+            margin-right: 5px;
+            margin-top: 8px;
+            margin-left: 5px;
+        }
+ 
+        .button-container {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+        }
+ 
+        .button-container button {
+            margin-right: 10px;
+        }
+ 
+        .chat-box {
+            overflow-y: scroll;
+            flex: 1;
+            max-height: 70%;
+            background-color: #f2f2f2;
+            margin-top: 5px;
+            padding: 10px;
+        }
+ 
+        .message {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            clear: both;
+            max-width: 70%;
+        }
+ 
+        .user-message {
+            background-color: #dcf8c6;
+            float: right;
+        }
+ 
+        .ai-message {
+            background-color: #e8e8e8;
+            float: left;
+            padding: 10px;
+            border-radius: 5px;
+            clear: both;
+            max-width: 70%;
+        }
+ 
+        .ai-message p {
+            margin: 5px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+ 
+        .source-link {
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+ 
+        .source-link:hover {
+            color: #0056b3;
+        }
+ 
+        .message p {
+            margin: 5px 0;
+        }
+ 
+        .fetching {
+            display: inline-block;
+            animation: fetching 1s infinite;
+        }
+ 
+        @keyframes fetching {
+            0% {
+                opacity: 0.2;
+            }
+ 
+            50% {
+                opacity: 0.6;
+            }
+ 
+            100% {
+                opacity: 1;
+            }
+        }
+ 
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            position: absolute;
+            margin-bottom: 20px;
+            bottom: 0;
+            width: 100%;
+            justify-content: center;
+        }
+ 
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+            width: 35vw;
+        }
+        
+        #questionInput {
+            margin-top:5px;
+        }
+ 
+        button {
+            padding: 10px;
+            margin-left: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            box-sizing: border-box;
+            border-radius: 10px;
+        }
+ 
+        button:hover {
+            background-color: #0056b3;
+        }
+ 
+        .selected-button {
+            background-color: #00b32d !important;
+        }
+ 
+        .source-link {
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+ 
+        .source-link:hover {
+            color: #0056b3;
+        }
+ 
+        #chatbotInfo {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            text-align: center;
+            font-weight: bold;
+            font-size:20px;
+        }
+ 
+        .permanent-note {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .sourcebold {
+            font-weight: bold;
+        }
+ 
+        @media only screen and (max-width: 600px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                height: 80vh;
+            }
+ 
+            .input-container {
+                width: 100%;
+                justify-content: center;
+                position: relative;
+                bottom: 0;
+            }
+ 
+            input[type="text"] {
+                width: 60%;
+                margin-right: 5px;
+            }
+ 
+            button {
+                width: 30%;
+                margin-left: 5px;
+            }
+        }
+ 
+        @media only screen and (min-width: 600px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                height: 80vh;
+            }
+ 
+            .input-container {
+                width: 100%;
+                justify-content: center;
+                position: relative;
+                bottom: 0;
+            }
+ 
+            input[type="text"] {
+                width: 60%;
+                margin-right: 5px;
+            }
+ 
+            button {
+                width: 30%;
+                margin-left: 5px;
+            }
+        }
+    </style>
+</head>
+ 
+<body>
+    <div class="container">
+        <div class="subcontainer">
+            <img src="https://www.cio.com/wp-content/uploads/2023/08/chatbot_ai_machine-learning_emerging-tech-100778305-orig.jpg?quality=50&strip=all"
+                class="ChatbotIcon" />
+            <h1>Owner's Manual</h1>
+        </div>
+ 
+        <div class="chat-box" id="chatBox">
+            <!-- Initial chatbot selection buttons -->
+            <div class="message ai-message">
+                <p>Welcome to Owner's Manual! How can I assist you today?</p>
+            </div>
+            <div class="message ai-message">
+                <p>Please select the manual you want to use:</p>
+                <div class="button-container">
+                    <button onclick="selectChatbot('chatbot1')" id="chatbot1Button">SAP Peacock</button>
+                    <button onclick="selectChatbot('chatbot2')" id="chatbot2Button">Malaysia NSC</button>
+                    <!-- Add more chatbot buttons as needed -->
+                </div>
+            </div>
+        </div>
+ 
+        <div id="chatbotInfo">
+            <div id="chatbotName"></div>
+            <div class="permanent-note">To change the manual, please type the command "/models" and hit the ask button.
+            </div>
+        </div>
+ 
+        <div class="input-container">
+            <input type="text" id="questionInput" placeholder="Enter your question">
+            <button onclick="processUserInput()">Ask</button>
+        </div>
+    </div>
+    <!-- Include Socket.IO library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.min.js"></script>
+    <script>
+        // JavaScript code
+        const chatbots = {
+            chatbot1: {
+                workspaceId: "zWIyhku",
+                id: "65a9033926c1b327e42090ee",
+                apiKey: "fc4f2e2443c24e9baf1af45daa68ece4"
+            },
+            chatbot2: {
+                workspaceId: "zWIyhku",
+                id: "65a9097e26c1b327e42090ef",
+                apiKey: "54290d2463bd497884568d94eaf7fb45"
+            },
+            // Add more chatbots as needed
+        };
+ 
+        let selectedChatbot = "";
+ 
+        function selectChatbot(chatbot) {
+            selectedChatbot = chatbot;
+            const buttons = document.querySelectorAll('.button-container button');
+            buttons.forEach(button => button.classList.remove('selected-button'));
+            document.getElementById(chatbot + 'Button').classList.add('selected-button');
+ 
+            const chatbotInfo = document.getElementById('chatbotName');
+            if (chatbot === 'chatbot1') {
+                chatbotInfo.innerHTML = "<strong>You are using SAP Peacock User Manual Assistant.</strong>";
+            } else if (chatbot === 'chatbot2') {
+                chatbotInfo.innerHTML = "<strong>You are using Malaysia NSC.</strong>";
+            }
+ 
+            // Hide the button container after a chatbot is selected
+            const buttonContainer = document.querySelector('.button-container');
+            buttonContainer.style.display = 'none';
+ 
+            // Clear the chat box content
+            const chatBox = document.getElementById("chatBox");
+            chatBox.innerHTML = '';
+ 
+            // Display welcome message
+            displayWelcomeMessage(chatbot);
+        }
+ 
+        function displayWelcomeMessage(chatbot) {
+            const chatBox = document.getElementById("chatBox");
+            const message = document.createElement("div");
+            message.classList.add("message");
+            message.classList.add("ai-message");
+            message.innerHTML = `
+                <p>Welcome to ${chatbot === 'chatbot1' ? 'SAP Peacock' : 'Malaysia NSC'}! I'm here to assist you with all your ${chatbot === 'chatbot1' ? 'SAP-related' : 'NSC related'} queries.</p>
+            `;
+            chatBox.appendChild(message);
+        }
+ 
+        function processUserInput() {
+            const userInput = document.getElementById("questionInput").value.trim().toLowerCase();
+            if (!selectedChatbot) {
+        // If no chatbot is selected, display a message to select one
+        const chatBox = document.getElementById("chatBox");
+        const message = document.createElement("div");
+        message.classList.add("message");
+        message.classList.add("ai-message");
+        message.innerHTML = `
+            <p>Please select a chatbot first.</p>
+        `;
+        chatBox.appendChild(message);
+
+        // Clear the input box
+        document.getElementById("questionInput").value = "";
+    }
+            else if (userInput === "/models") {
+                // If the user entered "/models", display the chatbot selection buttons
+                const chatBox = document.getElementById("chatBox");
+                chatBox.innerHTML = ''; // Clear previous messages
+ 
+                const message = document.createElement("div");
+                message.classList.add("message");
+                message.classList.add("ai-message");
+                message.innerHTML = `
+                    <p>Please select the chatbot you want to use:</p>
+                    <div class="button-container">
+                        <button onclick="selectChatbot('chatbot1')" id="chatbot1Button">SAP Peacock</button>
+                        <button onclick="selectChatbot('chatbot2')" id="chatbot2Button">Malaysia NSC</button>
+                        <!-- Add more chatbot buttons as needed -->
+                    </div>
+                `;
+                chatBox.appendChild(message);
+ 
+                const chatbotInfo = document.getElementById('chatbotName');
+                chatbotInfo.innerHTML = '';
+ 
+                // Clear the input box
+                document.getElementById("questionInput").value = "";
+                selectedChatbot = "";
+            } else {
+                // If the user didn't enter "/models", proceed with asking the question
+                askQuestion();
+                // Clear the input box after processing the user's input
+                document.getElementById("questionInput").value = "";
+            }
+        }
+ 
+        class PrismeaiAIK {
+            constructor() {
+                this.apiHost = "https://api.stellantis.prisme.ai/v2";
+            }
+ 
+            async fetch(path, body, opts) {
+                const { method = "POST" } = opts || {};
+                const url = `${this.apiHost}${path}`;
+                const selectedChatbotDetails = chatbots[selectedChatbot];
+                const headers = {
+                    "Content-Type": "application/json",
+                    'knowledge-project-apikey': selectedChatbotDetails.apiKey
+                };
+                const req = await fetch(url, {
+                    method,
+                    headers,
+                    body: body ? JSON.stringify(body) : undefined,
+                });
+                const result = await req.json();
+                if (req.status > 399) {
+                    throw result;
+                }
+                return result;
+            }
+ 
+            async anonymousLogin() {
+                this.user = await this.fetch("/login/anonymous");
+            }
+ 
+            async init(project, eventCallback) {
+                await this.anonymousLogin();
+                this.eventCallback = eventCallback;
+                this.project = project;
+ 
+                const filters = {
+                    "source.sessionId": "*",
+                    "source.socketId": "*",
+                };
+                const queryString = new URLSearchParams(filters || {}).toString();
+                const fullQueryString = queryString ? `?${queryString}` : "";
+                const extraHeaders = {
+                    authorization: `Bearer ${this.project.apiKey}`,
+                };
+ 
+                this.client = io(
+                    `${this.apiHost}/workspaces/${this.project.workspaceId}/events${fullQueryString}`,
+                    {
+                        extraHeaders,
+                        withCredentials: true,
+                    }
+                );
+ 
+                this.client.on("error", (err) => {
+                    console.error("Websocket error : ", err);
+                });
+                this.client.on("connect", () => {
+                    console.log("Websocket connected");
+                    this.client.emit("filters", {
+                        payloadQuery: [{
+                            "source.sessionId": "*",
+                            type: ["apiMessageChunk", "completedMessage", "sendSourcesMessage"],
+                        }],
+                    });
+                });
+ 
+                this.client.onAny((eventName, data) => {
+                    this.eventCallback(data);
+                });
+            }
+ 
+            async send(text) {
+                const res = await this.fetch(
+                    `/workspaces/${this.project.workspaceId}/webhooks/query`,
+                    {
+                        text,
+                        projectId: this.project.id
+                    },
+                    {
+                        headers: {
+                            "knowledge-project-apikey": this.project.apiKey,
+                        },
+                    }
+                );
+                return res;
+            }
+        }
+ 
+        async function askQuestion() {
+            var question = document.getElementById("questionInput").value;
+            var chatBox = document.getElementById("chatBox");
+ 
+            var userMessageDiv = document.createElement("div");
+            userMessageDiv.classList.add("message");
+            userMessageDiv.classList.add("user-message");
+            userMessageDiv.innerHTML = "<p><strong>You:</strong> " + question + "</p>";
+            chatBox.appendChild(userMessageDiv);
+ 
+            var fetchingIndicator = document.createElement("span");
+            fetchingIndicator.classList.add("fetching");
+            fetchingIndicator.textContent = " Fetching...";
+            userMessageDiv.appendChild(fetchingIndicator);
+ 
+            chatBox.scrollTop = chatBox.scrollHeight;
+ 
+            const aik = new PrismeaiAIK();
+            try {
+                const selectedChatbotDetails = chatbots[selectedChatbot];
+                await aik.init(
+                    {
+                        workspaceId: selectedChatbotDetails.workspaceId,
+                        id: selectedChatbotDetails.id,
+                        apiKey: selectedChatbotDetails.apiKey,
+                    },
+                    (event) => {
+                        if (event.type === "completedMessage") {
+                            console.log("Response:", event.payload?.content);
+                            displayResponse(event.payload?.content, event.payload?.sources);
+                        } else if (event.type === "sendSourcesMessage") {
+                            console.log(event.payload.body.sources.html);
+                        } else if (
+                            event.type === "apiMessageChunk" &&
+                            event?.payload?.concatenated?.value
+                        ) {
+                            console.log(
+                                "Last completed message : " + event.payload.concatenated.value
+                            );
+                        }
+                    }
+                );
+                const response = await aik.send(question);
+                console.log("Response:", response);
+                displayResponse(response.answer, response.sources);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+ 
+            fetchingIndicator.remove();
+        }
+ 
+        function displayResponse(answer, sources) {
+            var chatBox = document.getElementById("chatBox");
+ 
+            var lines = answer.split("\n");
+ 
+            var aiMessageDiv = document.createElement("div");
+            aiMessageDiv.classList.add("message");
+            aiMessageDiv.classList.add("ai-message");
+ 
+            var aiLabel = document.createElement("strong");
+            aiLabel.textContent = "AI: ";
+            aiMessageDiv.appendChild(aiLabel);
+ 
+            lines.forEach(function (line, index) {
+                var p = document.createElement("p");
+                p.textContent = line;
+                aiMessageDiv.appendChild(p);
+            });
+ 
+            if (sources && sources.html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(sources.html, "text/html");
+                var anchor = doc.querySelector("a");
+                if (anchor) {
+                    var sourceName = anchor.textContent.trim();
+                    var sourceLink = anchor.href;
+                    var sourceLinkElement = document.createElement("p");
+                    sourceLinkElement.innerHTML = "<span class='sourcebold' >Source:</span> <a class='source-link' href='" + sourceLink + "' target='_blank'>" + sourceName + "</a>";
+                    aiMessageDiv.appendChild(sourceLinkElement);
+                }
+            }
+ 
+            chatBox.appendChild(aiMessageDiv);
+ 
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+ 
+        // Add event listener for submitting question by pressing enter key
+        document.getElementById("questionInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent the default action of submitting a form
+                processUserInput();
+            }
+        });
+    </script>
+</body>
+ 
+</html>
